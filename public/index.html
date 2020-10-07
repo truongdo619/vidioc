@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Vidioc</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--===============================================================================================-->	
+	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+<!--==============================================================================	=================-->
+	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="css/util.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+<!--===============================================================================================-->
+
+	<script src="socket.io/socket.io.js"></script>
+	<script src="modules/mediasoupclient.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/EventEmitter/5.2.8/EventEmitter.min.js"></script>
+	<script src="RoomClient.js"></script>
+	<style>
+		.containers {
+			display: grid;
+			grid-gap: 5px;
+			grid-template-columns: repeat(auto-fit, 1fr);
+			grid-template-rows: repeat(auto-fit, 300px);
+		}
+
+		.container {
+			display: flex;
+		}
+
+		.vid {
+			flex: 0 1 auto;
+			height: 400px;
+		}
+
+		.settings {
+			background-color: #4CAF50;
+			border: none;
+			color: white;
+			padding: 5px 10px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 14px;
+			margin: 2px 2px;
+			cursor: pointer;
+		}
+
+		.hidden {
+			display: none
+		}
+	</style>
+</head>
+<body>
+	<div id="login">
+		<!--  -->
+		<div class="simpleslide100">
+			<div class="simpleslide100-item bg-img1" style="background-image: url('images/bg01.jpg');"></div>
+			<div class="simpleslide100-item bg-img1" style="background-image: url('images/bg02.jpg');"></div>
+			<div class="simpleslide100-item bg-img1" style="background-image: url('images/bg03.jpg');"></div>
+		</div>
+
+		<div class="size1 overlay1">
+			<!--  -->
+			<div class="size1 flex-col-c-m p-l-15 p-r-15 p-t-50 p-b-50">
+				<h3 class="l1-txt1 txt-center p-b-25">
+					Vidioc
+				</h3>
+
+				<p class="m2-txt1 txt-center p-b-30">
+					Go ahead, video chat with the whole class.
+				</p>
+
+
+				<form class="w-full flex-w flex-c-m validate-form">
+
+					<div class="form-group">
+						<label style="color: white">Class</label>
+						<input id="roomidInput" class="form-control" value="123">
+					</div>
+					<div class="form-group">
+						<label style="color: white">Your name</label>
+						<input id='nameInput' class="form-control" value="bob">
+					</div>
+
+				</form>
+				<button class="flex-c-m size3 s2-txt3 how-btn1 trans-04 where1" onclick="joinRoom(nameInput.value, roomidInput.value)">
+					Join Class
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="control" class="hidden">
+		<button id='exitButton' class='hidden' onclick="rc.exit()">Exit</button>
+		<br/>
+		audio: <select id="audioSelect">
+	</select>
+		<br/>
+		video: <select id="videoSelect">
+	</select>
+		<br />
+		<button id='startAudioButton' class="hidden btn btn-primary" type="submit" onclick="rc.produce(RoomClient.mediaType.audio, audioSelect.value)">audio</button>
+		<button id='stopAudioButton'class="hidden btn btn-primary"  type="submit" onclick="rc.closeProducer(RoomClient.mediaType.audio)">close
+			audio</button>
+		<button id='startVideoButton' class="hidden btn btn-primary"  type="submit" onclick="rc.produce(RoomClient.mediaType.video, videoSelect.value)">video</button>
+		<button id='stopVideoButton' class="hidden btn btn-primary"  type="submit" onclick="rc.closeProducer(RoomClient.mediaType.video)">close
+			video</button>
+		<button id='startScreenButton' class="hidden btn btn-primary"  type="submit" onclick="rc.produce(RoomClient.mediaType.screen)">screen</button>
+		<button id='stopScreenButton' class="hidden btn btn-primary"	  type="submit" onclick="rc.closeProducer(RoomClient.mediaType.screen)">close
+			screen</button>
+		<br />
+	</div>
+
+
+
+
+	<div id='videoMedia' class='hidden'>
+		<h2>------local------</h2>
+		<div id="localMedia"></div>
+		<!--<video id="localVideo" autoplay inline class="vid"></video>-->
+		<!--<video id="localScreen" autoplay inline class="vid"></video>-->
+		<h2>-----remote-----</h2>
+		<div id="remoteVideos" class="container">
+		</div>
+
+		<div id="remoteAudios"></div>
+
+	</div>
+
+
+	
+
+<!--===============================================================================================-->	
+	<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/bootstrap/js/popper.js"></script>
+	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+	<script src="vendor/countdowntime/moment.min.js"></script>
+	<script src="vendor/countdowntime/moment-timezone.min.js"></script>
+	<script src="vendor/countdowntime/moment-timezone-with-data.min.js"></script>
+	<script src="vendor/countdowntime/countdowntime.js"></script>
+	<script>
+		$('.cd100').countdown100({
+			/*Set Endtime here*/
+			/*Endtime must be > current time*/
+			endtimeYear: 0,
+			endtimeMonth: 0,
+			endtimeDate: 35,
+			endtimeHours: 18,
+			endtimeMinutes: 0,
+			endtimeSeconds: 0,
+			timeZone: "" 
+			// ex:  timeZone: "America/New_York"
+			//go to " http://momentjs.com/timezone/ " to get timezone
+		});
+	</script>
+<!--===============================================================================================-->
+	<script src="vendor/tilt/tilt.jquery.min.js"></script>
+	<script >
+		$('.js-tilt').tilt({
+			scale: 1.1
+		})
+	</script>
+<!--===============================================================================================-->
+	<script src="js/main.js"></script>
+
+</body>
+<footer>
+	<script src="index.js"></script>
+</footer>
+</html>
