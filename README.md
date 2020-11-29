@@ -107,3 +107,14 @@ Here is the results on DSB2018 dataset (96x96) with LovaszHingeLoss.
 | U-Net                           |  0.824  |  0.192  |
 | Nested U-Net                    |  **0.828**  | **0.169** |
 | Nested U-Net w/ Deepsupervision |0.756|  0.432  |
+
+
+
+| Hyperparams                     |      | 
+|:------------------------------- |:-------:|
+| Batch_size                         |  16  |
+| Dataset                    |  dsb2018_96  |
+| Early_stopping |False|
+| Epochs |50|
+| Learning rate |0.001|
+| optimizer |SGD|
